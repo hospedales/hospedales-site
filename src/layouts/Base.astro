@@ -1,0 +1,30 @@
+---
+import '../styles/global.css'
+import '@fontsource-variable/fraunces'
+import '@fontsource-variable/inter'
+import '@fontsource/jetbrains-mono'
+import BaseHead from '../components/BaseHead.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+
+interface Props {
+  title: string
+  description: string
+  ogImagePath?: string
+}
+const { title, description, ogImagePath } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead {title} {description} {ogImagePath} />
+  </head>
+  <body class="bg-paper text-ink flex min-h-screen flex-col font-sans antialiased">
+    <SiteHeader currentPath={Astro.url.pathname} />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-paper: #faf7f2;
+  --color-paper-warm: #f3ede3;
+  --color-ink: #191922;
+  --color-ink-deep: #121218;
+  --color-ink-soft: #52525e;
+  --color-koi-100: #fbe7ec;
+  --color-koi-300: #f0a8b8;
+  --color-koi-500: #d6456b;
+  --color-koi-600: #b23252;
+  --color-koi-700: #93283f;
+  --color-spark-100: #dff6fb;
+  --color-spark-400: #22d3ee;
+  --color-spark-600: #0e7490;
+  --color-spark-700: #155e75;
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Prose tuned to tokens */
+.prose {
+  --tw-prose-body: var(--color-ink);
+  --tw-prose-headings: var(--color-ink-deep);
+  --tw-prose-links: var(--color-koi-600);
+  --tw-prose-quotes: var(--color-ink-soft);
+  --tw-prose-quote-borders: var(--color-koi-300);
+  --tw-prose-code: var(--color-ink-deep);
+}

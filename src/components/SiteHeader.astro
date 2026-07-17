@@ -1,0 +1,41 @@
+---
+import { siteConfig } from '../lib/site'
+import KoiMark from './KoiMark.astro'
+
+interface Props {
+  currentPath?: string
+}
+const { currentPath = '/' } = Astro.props
+const isActive = (href: string) => currentPath === href || currentPath.startsWith(href + '/')
+---
+
+<header class="border-paper-warm border-b">
+  <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+    <a
+      href="/"
+      class="text-ink-deep hover:text-koi-600 flex items-center gap-2.5 transition-colors"
+    >
+      <KoiMark class="text-koi-500 h-7 w-7" />
+      <span class="font-display text-xl font-semibold tracking-tight">Hospedales</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="flex items-center gap-6 text-sm font-medium">
+        {
+          siteConfig.nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                class={`hover:text-koi-600 transition-colors ${
+                  isActive(item.href) ? 'text-koi-600' : 'text-ink-soft'
+                }`}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
