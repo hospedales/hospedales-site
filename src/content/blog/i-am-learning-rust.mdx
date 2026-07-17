@@ -1,0 +1,24 @@
+---
+title: 'I am learning Rust'
+description: 'Today, I started to learn Rust. I am officially a fellow crustacean. I am excited to learn a new language and I am excited to learn a language that is so popular and so well-loved by the community. I got a bit teary eyed when reading my first compiler error message.'
+pubDate: 2022-11-03
+author: 'michael'
+---
+
+Today, I started to learn Rust. I am officially a fellow crustacean. I am excited to learn a new language and I am excited to learn a language that is so popular and so well-loved by the community. I got a bit teary eyed when reading my first compiler error message. I am a sucker for good error messages.
+
+```rust
+use ferris_says::say;
+use std::io::{stdout, BufWriter};
+
+fn main() {
+    let stdout = stdout();
+    let message = String::from("Michael Hospedales has arrived.");
+    let width = message.chars().count();
+
+    let mut writer = BufWriter::new(stdout.lock());
+    say(message.as_bytes(), width, &mut writer).unwrap();
+}
+```
+
+It is not much, but I am excited to learn more. I recommend every developer try to take a look at what the future of programming languages looks like. I am excited to see what the future holds for Rust and I am excited to see what the future holds for me.

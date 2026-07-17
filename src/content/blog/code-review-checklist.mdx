@@ -1,0 +1,499 @@
+---
+title: 'Professional Code Review Checklist'
+description: 'The same code review checklist used by senior engineers at Google, Microsoft, and Netflix. Comprehensive standards for security, performance, maintainability, and quality assurance.'
+pubDate: 2025-01-11
+author: 'michael'
+tags: ['Code Review', 'Best Practices', 'Team', 'Quality']
+---
+
+> **What you'll gain:** Catch bugs before they reach production, maintain consistent code
+> standards across your team, improve overall code quality, and accelerate your code review
+> process with proven frameworks.
+
+## The Professional Code Review Framework
+
+### Core Principles (Google & Microsoft Standards)
+
+The primary purpose of code review is to **improve the overall code health** of your system over time. Focus on:
+
+1. **Approve when code improves overall system health** (even if not perfect)
+2. **Prevent bugs and security vulnerabilities** from reaching production
+3. **Maintain architectural integrity** and design consistency
+4. **Share knowledge** and best practices across the team
+5. **Build a culture of continuous improvement**
+
+## Pre-Review Checklist
+
+### Author Responsibilities
+
+**Before Submitting for Review:**
+
+```bash
+# Pre-review automation checklist
+# Run these commands before every code review submission
+
+# 1. Code formatting and linting
+npm run lint:fix
+npm run format
+
+# 2. Type checking (TypeScript/Flow)
+npm run type-check
+
+# 3. Run all tests
+npm test
+npm run test:integration
+npm run test:e2e
+
+# 4. Security scanning
+npm audit --audit-level moderate
+snyk test
+
+# 5. Build verification
+npm run build
+```
+
+**Self-Review Checklist:**
+
+- [ ] All tests pass locally
+- [ ] Code is properly formatted and linted
+- [ ] No debugging code, console.logs, or temporary comments
+- [ ] Pull request description explains the "why" not just "what"
+- [ ] Breaking changes are clearly documented
+- [ ] Screenshots/videos included for UI changes
+
+## 1. Functionality and Logic Review
+
+### Core Functionality
+
+**Business Logic Verification:**
+
+```javascript
+// ✅ Good: Clear business logic with edge case handling
+function calculateDiscount(price, customerTier, promoCode) {
+  if (price < 0) throw new Error('Invalid price')
+  if (!VALID_TIERS.includes(customerTier)) throw new Error('Invalid tier')
+
+  let discount = TIER_DISCOUNTS[customerTier] || 0
+
+  if (promoCode && ACTIVE_PROMOS[promoCode]) {
+    discount = Math.max(discount, ACTIVE_PROMOS[promoCode].discount)
+  }
+
+  return Math.min(discount, MAX_DISCOUNT_PERCENT)
+}
+
+// ❌ Bad: Missing validation and edge case handling
+function calculateDiscount(price, customerTier, promoCode) {
+  return TIER_DISCOUNTS[customerTier] + ACTIVE_PROMOS[promoCode].discount
+}
+```
+
+**Review Questions:**
+
+- [ ] Does the code solve the intended problem correctly?
+- [ ] Are edge cases handled appropriately?
+- [ ] Are error conditions properly managed?
+- [ ] Is the logic easy to follow and understand?
+- [ ] Are there any potential race conditions?
+
+## 2. Security Review (Critical Priority)
+
+### Input Validation and Sanitization
+
+**API Endpoint Security:**
+
+```javascript
+// ✅ Good: Comprehensive input validation
+app.post('/api/users', [
+  body('email').isEmail().normalizeEmail(),
+  body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/),
+  body('age').isInt({ min: 13, max: 120 }),
+  body('role').isIn(['user', 'admin']).optional()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  // Sanitize and process...
+  const userData = {
+    email: req.body.email.toLowerCase(),
+    password: await bcrypt.hash(req.body.password, 12),
+    age: parseInt(req.body.age),
+    role: req.body.role || 'user'
+  };
+
+  // ... save user
+});
+
+// ❌ Bad: No input validation
+app.post('/api/users', (req, res) => {
+  const user = new User(req.body); // Direct assignment - dangerous!
+  user.save();
+});
+```
+
+**Security Review Checklist:**
+
+- [ ] Is all user input validated and sanitized?
+- [ ] Are SQL injection attacks prevented (parameterized queries)?
+- [ ] Is XSS protection implemented?
+- [ ] Are authentication and authorization properly handled?
+- [ ] Are sensitive data (passwords, tokens) properly encrypted?
+- [ ] Are API rate limits implemented?
+- [ ] Is CSRF protection in place for state-changing operations?
+
+## 3. Performance Review
+
+### Database Operations
+
+**Efficient Database Queries:**
+
+```sql
+-- ✅ Good: Optimized query with proper indexing
+SELECT u.id, u.name, u.email, p.title
+FROM users u
+JOIN user_profiles p ON u.id = p.user_id
+WHERE u.status = 'active'
+  AND u.created_at >= '2024-01-01'
+ORDER BY u.created_at DESC
+LIMIT 50;
+
+-- Ensure indexes exist:
+-- CREATE INDEX idx_users_status_created ON users(status, created_at);
+-- CREATE INDEX idx_profiles_user_id ON user_profiles(user_id);
+
+-- ❌ Bad: N+1 query problem
+-- This would run 1 query to get users + N queries to get profiles
+```
+
+**Performance Review Questions:**
+
+- [ ] Are database queries optimized with proper indexes?
+- [ ] Is the N+1 query problem avoided?
+- [ ] Are expensive operations cached appropriately?
+- [ ] Is pagination implemented for large datasets?
+- [ ] Are database connections properly managed?
+
+### Frontend Performance
+
+**React Performance Optimization:**
+
+```javascript
+// ✅ Good: Optimized component with memoization
+import React, { memo, useMemo, useCallback } from 'react'
+
+const UserList = memo(({ users, onUserClick, searchTerm }) => {
+  // Memoize expensive filtering operation
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return users
+    return users.filter((user) => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  }, [users, searchTerm])
+
+  // Stable callback reference
+  const handleUserClick = useCallback(
+    (userId) => {
+      onUserClick(userId)
+    },
+    [onUserClick],
+  )
+
+  return (
+    <div>
+      {filteredUsers.map((user) => (
+        <UserCard key={user.id} user={user} onClick={handleUserClick} />
+      ))}
+    </div>
+  )
+})
+
+// ❌ Bad: Causes unnecessary re-renders
+const UserList = ({ users, onUserClick, searchTerm }) => {
+  // This filter runs on every render
+  const filteredUsers = users.filter((user) => user.name.includes(searchTerm))
+
+  return (
+    <div>
+      {filteredUsers.map((user) => (
+        <UserCard
+          key={user.id}
+          user={user}
+          onClick={(id) => onUserClick(id)} // New function every render
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+## 4. Code Quality and Maintainability
+
+### Clean Code Principles
+
+**Function Design:**
+
+```javascript
+// ✅ Good: Single responsibility, clear naming, proper error handling
+async function sendWelcomeEmail(userId, emailTemplate = 'default') {
+  try {
+    const user = await getUserById(userId)
+    if (!user) {
+      throw new Error(`User not found: ${userId}`)
+    }
+
+    const template = await getEmailTemplate(emailTemplate)
+    const personalizedContent = personalizeTemplate(template, user)
+
+    await emailService.send({
+      to: user.email,
+      subject: template.subject,
+      html: personalizedContent,
+    })
+
+    await logEmailSent(userId, emailTemplate)
+  } catch (error) {
+    logger.error('Failed to send welcome email', {
+      userId,
+      emailTemplate,
+      error: error.message,
+    })
+    throw error
+  }
+}
+
+// ❌ Bad: Multiple responsibilities, unclear naming, poor error handling
+async function doStuff(id, t) {
+  const u = await db.query('SELECT * FROM users WHERE id = ?', [id])
+  const tmpl = await db.query('SELECT * FROM templates WHERE name = ?', [t])
+  const content = tmpl.content.replace('{{name}}', u.name)
+  emailer.send(u.email, tmpl.subject, content)
+  db.query('INSERT INTO logs...') // Might fail silently
+}
+```
+
+**Code Quality Review Questions:**
+
+- [ ] Are functions small and focused on single responsibility?
+- [ ] Are variable and function names descriptive and clear?
+- [ ] Is the code DRY (Don't Repeat Yourself)?
+- [ ] Are magic numbers and strings replaced with named constants?
+- [ ] Is error handling comprehensive and appropriate?
+
+## 5. Testing Review
+
+### Test Coverage and Quality
+
+**Comprehensive Test Strategy:**
+
+```javascript
+describe('UserService', () => {
+  describe('createUser', () => {
+    // ✅ Good: Tests cover happy path, edge cases, and error conditions
+
+    it('should create user with valid data', async () => {
+      const userData = {
+        email: 'test@example.com',
+        password: 'SecurePass123!',
+        name: 'John Doe',
+      }
+
+      const result = await userService.createUser(userData)
+
+      expect(result.id).toBeDefined()
+      expect(result.email).toBe(userData.email)
+      expect(result.password).not.toBe(userData.password) // Should be hashed
+      expect(result.createdAt).toBeInstanceOf(Date)
+    })
+
+    it('should throw error for invalid email', async () => {
+      const userData = {
+        email: 'invalid-email',
+        password: 'SecurePass123!',
+        name: 'John Doe',
+      }
+
+      await expect(userService.createUser(userData)).rejects.toThrow('Invalid email format')
+    })
+
+    it('should hash password before storing', async () => {
+      const userData = {
+        email: 'test@example.com',
+        password: 'PlainTextPassword',
+        name: 'John Doe',
+      }
+
+      const result = await userService.createUser(userData)
+      const storedUser = await db.users.findById(result.id)
+
+      expect(storedUser.password).not.toBe(userData.password)
+      expect(await bcrypt.compare(userData.password, storedUser.password)).toBe(true)
+    })
+  })
+})
+```
+
+**Test Review Questions:**
+
+- [ ] Do tests cover both happy paths and edge cases?
+- [ ] Are error conditions properly tested?
+- [ ] Do integration tests verify the complete workflow?
+- [ ] Are tests independent and can run in any order?
+- [ ] Is test data properly set up and cleaned up?
+- [ ] Are tests readable and well-documented?
+
+## 6. Architecture and Design Review
+
+### SOLID Principles Application
+
+**Dependency Injection and Inversion:**
+
+```javascript
+// ✅ Good: Dependency injection for testability
+class OrderService {
+  constructor(paymentService, emailService, inventoryService) {
+    this.paymentService = paymentService
+    this.emailService = emailService
+    this.inventoryService = inventoryService
+  }
+
+  async processOrder(orderData) {
+    // Check inventory
+    const hasStock = await this.inventoryService.checkAvailability(orderData.items)
+    if (!hasStock) {
+      throw new Error('Insufficient inventory')
+    }
+
+    // Process payment
+    const payment = await this.paymentService.charge(orderData.customerId, orderData.total)
+
+    // Send confirmation
+    await this.emailService.sendOrderConfirmation(orderData.customerId, orderData)
+
+    return { orderId: generateOrderId(), paymentId: payment.id }
+  }
+}
+
+// Easy to test with mocks
+const mockPaymentService = { charge: jest.fn() }
+const mockEmailService = { sendOrderConfirmation: jest.fn() }
+const mockInventoryService = { checkAvailability: jest.fn() }
+
+const orderService = new OrderService(mockPaymentService, mockEmailService, mockInventoryService)
+
+// ❌ Bad: Tight coupling, hard to test
+class OrderService {
+  async processOrder(orderData) {
+    const paymentService = new PaymentService() // Tight coupling
+    const emailService = new EmailService() // Hard to mock
+    const inventoryService = new InventoryService() // Not testable
+
+    // ... process order
+  }
+}
+```
+
+## 7. Review Process Best Practices
+
+### Optimal Review Practices
+
+**Pull Request Guidelines:**
+
+### Size Limits
+
+- **Ideal size**: < 200 lines of code changes
+- **Maximum size**: < 400 lines (break down larger changes)
+- **Time limit**: Reviews should take < 60 minutes
+
+### Review Timing
+
+- **Response time**: Within 24 hours during business days
+- **Approval time**: Same day for small changes, 2-3 days for large features
+- **Emergency fixes**: Within 2 hours
+
+### Review Focus Order
+
+1. **Tests first**: Understand expected behavior
+2. **Architecture**: High-level design and structure
+3. **Security**: Input validation, authentication, authorization
+4. **Logic**: Business rules and edge cases
+5. **Performance**: Database queries, algorithms, caching
+6. **Style**: Formatting, naming, documentation (use automated tools)
+
+### Constructive Feedback Framework
+
+**Effective Review Comments:**
+
+### Specific and Actionable
+
+❌ "This looks wrong"
+✅ "This function doesn't handle the case where `users` array is empty.
+Consider adding a guard clause: `if (!users.length) return [];`"
+
+### Educational
+
+❌ "Use map instead"
+✅ "Consider using `map()` instead of `forEach()` + `push()` for better functional style:
+`javascript
+    const results = items.map(item => transform(item));
+    `
+This is more readable and creates fewer intermediate variables."
+
+### Balanced Feedback
+
+✅ "Great error handling implementation! One suggestion: consider adding
+request IDs to error logs for easier debugging in production."
+
+### Priority Indicators
+
+- **MUST FIX**: Security vulnerabilities, breaking changes
+- **SHOULD FIX**: Performance issues, maintainability problems
+- **CONSIDER**: Style improvements, minor optimizations
+- **NIT**: Personal preferences, very minor issues
+
+## Code Review Checklist Summary
+
+### Pre-Review (Author)
+
+- [ ] Code is properly formatted and linted
+- [ ] All tests pass locally
+- [ ] Self-review completed
+- [ ] PR description is comprehensive
+
+### Core Review Areas
+
+- [ ] **Functionality**: Logic is correct, edge cases handled
+- [ ] **Security**: Input validation, authorization, no vulnerabilities
+- [ ] **Performance**: Efficient algorithms, optimized queries
+- [ ] **Maintainability**: Clean code principles, good documentation
+- [ ] **Testing**: Comprehensive coverage, quality test cases
+- [ ] **Architecture**: SOLID principles, appropriate patterns
+
+### Review Process
+
+- [ ] Review completed within 24 hours
+- [ ] Feedback is specific and actionable
+- [ ] Positive reinforcement included
+- [ ] Learning opportunities highlighted
+
+### Post-Review
+
+- [ ] All feedback addressed or discussed
+- [ ] Final approval given
+- [ ] Knowledge shared with team
+- [ ] Process improvements noted
+
+## Building a Code Review Culture
+
+Remember that great code reviews:
+
+- **Focus on the code, not the coder** - critique the implementation, not the person
+- **Assume positive intent** - developers want to write good code
+- **Balance perfection with progress** - approve changes that improve overall code health
+- **Teach and learn** - use reviews as opportunities for knowledge sharing
+- **Be consistent** - apply standards equally across all team members
+
+The goal is continuous improvement of code quality, team knowledge, and system reliability. A strong review culture prevents bugs, improves maintainability, and builds team cohesion.
+
+---
+
+_This checklist is based on code review practices from Google, Microsoft, Netflix, and other industry leaders. For team-specific review process consulting, [contact me directly](/contact)._
