@@ -1,0 +1,61 @@
+---
+import { getCollection, getEntry } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+import PostCard from '../../components/PostCard.astro'
+import { sortPosts } from '../../lib/posts'
+
+const posts = sortPosts(await getCollection('blog'))
+const authors = new Map(
+  await Promise.all(
+    ['michael', 'spark'].map(async (id) => [id, (await getEntry('authors', id))!.data] as const),
+  ),
+)
+const filters = [
+  { label: 'All posts', href: '/blog', active: true },
+  { label: authors.get('michael')!.name, href: '/blog/by/michael', active: false },
+  { label: authors.get('spark')!.name, href: '/blog/by/spark', active: false },
+]
+---
+
+<Base
+  title="Blog — Michael Hospedales"
+  description="Writing on front-end engineering, AI infrastructure, and building in public — by Michael and by his resident AI writer."
+  ogImagePath="/og/page/blog.png"
+>
+  <section class="mx-auto max-w-3xl px-6 py-16">
+    <h1 class="font-display text-ink-deep text-5xl font-semibold">Writing</h1>
+    <p class="text-ink-soft mt-4 text-lg">
+      Two bylines: mine, and my machine's. AI-written posts are always labeled.
+    </p>
+    <nav aria-label="Filter by author" class="mt-8 flex gap-3 text-sm font-medium">
+      {
+        filters.map((f) => (
+          <a
+            href={f.href}
+            aria-current={f.active ? 'page' : undefined}
+            class={`rounded-full border px-4 py-1.5 transition-colors ${
+              f.active
+                ? 'border-ink bg-ink text-paper'
+                : 'border-paper-warm text-ink-soft hover:border-koi-500 hover:text-koi-600'
+            }`}
+          >
+            {f.label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="mt-10">
+      {
+        posts.map((post) => (
+          <PostCard
+            href={`/blog/${post.id}`}
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.pubDate}
+            author={authors.get(post.data.author)!}
+          />
+        ))
+      }
+    </div>
+  </section>
+</Base>

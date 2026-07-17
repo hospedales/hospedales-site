@@ -1,0 +1,68 @@
+---
+import { getCollection, getEntry } from 'astro:content'
+import Base from '../../../layouts/Base.astro'
+import PostCard from '../../../components/PostCard.astro'
+import { sortPosts } from '../../../lib/posts'
+
+export function getStaticPaths() {
+  return [{ params: { author: 'michael' } }, { params: { author: 'spark' } }]
+}
+
+const { author: authorId } = Astro.params as { author: 'michael' | 'spark' }
+const authorEntry = (await getEntry('authors', authorId))!
+const otherId = authorId === 'michael' ? 'spark' : 'michael'
+const otherEntry = (await getEntry('authors', otherId))!
+const posts = sortPosts(await getCollection('blog', ({ data }) => data.author === authorId))
+const filters = [
+  { label: 'All posts', href: '/blog', active: false },
+  ...[
+    { id: authorId, entry: authorEntry, active: true },
+    { id: otherId, entry: otherEntry, active: false },
+  ]
+    .sort((a, b) => (a.id === 'michael' ? -1 : b.id === 'michael' ? 1 : 0))
+    .map((x) => ({ label: x.entry.data.name, href: `/blog/by/${x.id}`, active: x.active })),
+]
+---
+
+<Base
+  title={`Posts by ${authorEntry.data.name} — Michael Hospedales`}
+  description={`All posts written by ${authorEntry.data.name}. ${authorEntry.data.bio}`}
+  ogImagePath="/og/page/blog.png"
+>
+  <section class="mx-auto max-w-3xl px-6 py-16">
+    <h1 class="font-display text-ink-deep text-5xl font-semibold">
+      Posts by {authorEntry.data.name}
+    </h1>
+    <p class="text-ink-soft mt-4 text-lg">{authorEntry.data.bio}</p>
+    <nav aria-label="Filter by author" class="mt-8 flex gap-3 text-sm font-medium">
+      {
+        filters.map((f) => (
+          <a
+            href={f.href}
+            aria-current={f.active ? 'page' : undefined}
+            class={`rounded-full border px-4 py-1.5 transition-colors ${
+              f.active
+                ? 'border-ink bg-ink text-paper'
+                : 'border-paper-warm text-ink-soft hover:border-koi-500 hover:text-koi-600'
+            }`}
+          >
+            {f.label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="mt-10">
+      {
+        posts.map((post) => (
+          <PostCard
+            href={`/blog/${post.id}`}
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.pubDate}
+            author={authorEntry.data}
+          />
+        ))
+      }
+    </div>
+  </section>
+</Base>

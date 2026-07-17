@@ -1,0 +1,20 @@
+---
+import BylineChip from './BylineChip.astro'
+
+interface Props {
+  href: string
+  title: string
+  description: string
+  date: Date
+  author: { name: string; isAI: boolean }
+}
+const { href, title, description, date, author } = Astro.props
+---
+
+<article class="group border-paper-warm border-b py-8 first:pt-0">
+  <BylineChip {author} {date} />
+  <h2 class="font-display text-ink-deep mt-3 text-2xl font-semibold">
+    <a href={href} class="group-hover:text-koi-600 transition-colors">{title}</a>
+  </h2>
+  <p class="text-ink-soft mt-2 max-w-2xl leading-relaxed">{description}</p>
+</article>
