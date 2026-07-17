@@ -15,6 +15,9 @@ export const handler = async (event) => {
   } catch {
     return json(400, { error: 'Invalid request body.' })
   }
+  if (data === null || typeof data !== 'object') {
+    return json(400, { error: 'Invalid request body.' })
+  }
   const { name = '', email = '', message = '', website = '' } = data
   if (website !== '') return json(200, { ok: true }) // honeypot: pretend success, send nothing
   if (typeof name !== 'string' || name.trim().length < 1 || name.length > 100)
@@ -24,18 +27,24 @@ export const handler = async (event) => {
   if (typeof message !== 'string' || message.trim().length < 10 || message.length > 5000)
     return json(400, { error: 'Please write a message of at least 10 characters.' })
 
-  await ses.send(
-    new SendEmailCommand({
-      FromEmailAddress: process.env.CONTACT_FROM,
-      Destination: { ToAddresses: [process.env.CONTACT_TO] },
-      ReplyToAddresses: [email],
-      Content: {
-        Simple: {
-          Subject: { Data: `[hospedales.com] Message from ${name.trim()}` },
-          Body: { Text: { Data: `From: ${name.trim()} <${email}>\n\n${message.trim()}` } },
+  try {
+    await ses.send(
+      new SendEmailCommand({
+        FromEmailAddress: process.env.CONTACT_FROM,
+        Destination: { ToAddresses: [process.env.CONTACT_TO] },
+        ReplyToAddresses: [email],
+        Content: {
+          Simple: {
+            Subject: { Data: `[hospedales.com] Message from ${name.trim()}` },
+            Body: { Text: { Data: `From: ${name.trim()} <${email}>\n\n${message.trim()}` } },
+          },
         },
-      },
-    }),
-  )
+      }),
+    )
+  } catch {
+    return json(500, {
+      error: 'Something went wrong sending your message — please email me directly.',
+    })
+  }
   return json(200, { ok: true })
 }

@@ -50,4 +50,16 @@ describe('contact handler', () => {
     const res = await handler({ requestContext: { http: { method: 'POST' } }, body: '{nope' })
     expect(res.statusCode).toBe(400)
   })
+  it('rejects a null JSON body with 400 and sends nothing', async () => {
+    const res = await handler({ requestContext: { http: { method: 'POST' } }, body: 'null' })
+    expect(res.statusCode).toBe(400)
+    expect(JSON.parse(res.body).error).toBeTruthy()
+    expect(sesMock.commandCalls(SendEmailCommand)).toHaveLength(0)
+  })
+  it('returns a JSON 500 error when SES fails', async () => {
+    sesMock.on(SendEmailCommand).rejects(new Error('ses down'))
+    const res = await handler(event(valid))
+    expect(res.statusCode).toBe(500)
+    expect(JSON.parse(res.body).error).toBeTruthy()
+  })
 })
