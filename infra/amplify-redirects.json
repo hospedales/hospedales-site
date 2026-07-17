@@ -1,0 +1,50 @@
+[
+  { "source": "/services", "target": "/about", "status": "301" },
+  { "source": "/book", "target": "/contact", "status": "301" },
+  { "source": "/tools", "target": "/projects", "status": "301" },
+  { "source": "/thank-you", "target": "/contact", "status": "301" },
+  { "source": "/rss", "target": "/rss.xml", "status": "301" },
+  {
+    "source": "/blog/web-technologies-2025-when-web-wins",
+    "target": "/blog/when-the-web-wins",
+    "status": "301"
+  },
+  { "source": "/blog/200k-developer-salary-roadmap-2025", "target": "/blog", "status": "301" },
+  { "source": "/blog/200k-skill-gap-ai-senior-engineers", "target": "/blog", "status": "301" },
+  { "source": "/blog/2023-07-14", "target": "/blog", "status": "301" },
+  { "source": "/blog/agentic-ai-implementation-guide", "target": "/blog", "status": "301" },
+  {
+    "source": "/blog/agentic-ai-virtual-coworkers-2025-trending",
+    "target": "/blog",
+    "status": "301"
+  },
+  { "source": "/blog/ai-code-quality-crisis-career-advantage", "target": "/blog", "status": "301" },
+  { "source": "/blog/ai-productivity-paradox-exposed", "target": "/blog", "status": "301" },
+  { "source": "/blog/ai-trends-2025", "target": "/blog", "status": "301" },
+  { "source": "/blog/cloud-engineer-90-day-roadmap", "target": "/blog", "status": "301" },
+  {
+    "source": "/blog/digital-nomad-visa-comparison-2025-developer-guide",
+    "target": "/blog",
+    "status": "301"
+  },
+  {
+    "source": "/blog/genai-investment-2025-ai-video-generation-comparison",
+    "target": "/blog",
+    "status": "301"
+  },
+  { "source": "/blog/gobble-gobble", "target": "/blog", "status": "301" },
+  { "source": "/blog/hidden-skills-triple-developer-value", "target": "/blog", "status": "301" },
+  {
+    "source": "/blog/multimodal-ai-gold-rush-backend-developers",
+    "target": "/blog",
+    "status": "301"
+  },
+  {
+    "source": "/blog/platform-engineering-migration-roadmap-2025",
+    "target": "/blog",
+    "status": "301"
+  },
+  { "source": "/blog/remote-work-salary-arbitrage-playbook", "target": "/blog", "status": "301" },
+  { "source": "/blog/software-engineer-job-market-2025", "target": "/blog", "status": "301" },
+  { "source": "/<*>", "target": "/404.html", "status": "404" }
+]
