@@ -1,0 +1,33 @@
+---
+interface Props {
+  href: string
+  title: string
+  summary: string
+  status: 'active' | 'shipped' | 'archived'
+  stack: string[]
+}
+const { href, title, summary, status, stack } = Astro.props
+const statusTone = {
+  active: 'bg-spark-100 text-spark-700',
+  shipped: 'bg-koi-100 text-koi-700',
+  archived: 'bg-paper-warm text-ink-soft',
+}[status]
+const statusLabel = status.charAt(0).toUpperCase() + status.slice(1)
+---
+
+<article
+  class="group border-paper-warm bg-paper flex h-full flex-col rounded-xl border p-6 transition-shadow hover:shadow-md"
+>
+  <div class="flex items-center justify-between">
+    <span class={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusTone}`}>
+      {statusLabel}
+    </span>
+  </div>
+  <h2 class="font-display text-ink-deep mt-4 text-xl font-semibold">
+    <a href={href} class="group-hover:text-koi-600 transition-colors">{title}</a>
+  </h2>
+  <p class="text-ink-soft mt-2 flex-1 text-sm leading-relaxed">{summary}</p>
+  <ul class="text-ink-soft mt-4 flex flex-wrap gap-1.5 text-xs">
+    {stack.map((item) => <li class="border-paper-warm rounded border px-2 py-0.5">{item}</li>)}
+  </ul>
+</article>

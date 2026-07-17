@@ -1,0 +1,34 @@
+---
+import { getCollection } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+import ProjectCard from '../../components/ProjectCard.astro'
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order)
+---
+
+<Base
+  title="Projects — Michael Hospedales"
+  description="What I'm building: an AI writing pipeline on a DGX Spark, homelab AI infrastructure, and this site."
+  ogImagePath="/og/page/projects.png"
+>
+  <section class="mx-auto max-w-5xl px-6 py-16">
+    <h1 class="font-display text-ink-deep text-5xl font-semibold">Projects</h1>
+    <p class="text-ink-soft mt-4 max-w-2xl text-lg">
+      Proof of work. Each of these is real, running, and written up honestly — including the
+      unfinished parts.
+    </p>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        projects.map((p) => (
+          <ProjectCard
+            href={`/projects/${p.id}`}
+            title={p.data.title}
+            summary={p.data.summary}
+            status={p.data.status}
+            stack={p.data.stack}
+          />
+        ))
+      }
+    </div>
+  </section>
+</Base>

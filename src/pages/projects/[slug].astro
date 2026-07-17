@@ -1,0 +1,61 @@
+---
+import { getCollection, render } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects')
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }))
+}
+
+const { project } = Astro.props
+const { Content } = await render(project)
+const { title, summary, status, stack, links } = project.data
+const statusLabel = status.charAt(0).toUpperCase() + status.slice(1)
+---
+
+<Base
+  title={`${title} — Michael Hospedales`}
+  description={summary}
+  ogImagePath={`/og/projects/${project.id}.png`}
+>
+  <article class="mx-auto max-w-3xl px-6 py-16">
+    <header class="mb-10">
+      <p class="text-koi-600 text-xs font-semibold tracking-widest uppercase">
+        Project · {statusLabel}
+      </p>
+      <h1 class="font-display text-ink-deep mt-3 text-4xl leading-tight font-semibold sm:text-5xl">
+        {title}
+      </h1>
+      <p class="text-ink-soft mt-4 text-lg">{summary}</p>
+      <ul class="text-ink-soft mt-5 flex flex-wrap gap-2 text-xs">
+        {stack.map((item) => <li class="border-paper-warm rounded border px-2 py-0.5">{item}</li>)}
+      </ul>
+      <div class="mt-5 flex gap-4 text-sm font-medium">
+        {
+          links.repo && (
+            <a class="text-koi-600 hover:underline" href={links.repo}>
+              Repository →
+            </a>
+          )
+        }
+        {
+          links.demo && (
+            <a class="text-koi-600 hover:underline" href={links.demo}>
+              Live →
+            </a>
+          )
+        }
+        {
+          links.post && (
+            <a class="text-koi-600 hover:underline" href={links.post}>
+              Related post →
+            </a>
+          )
+        }
+      </div>
+    </header>
+    <div class="prose prose-lg max-w-none">
+      <Content />
+    </div>
+  </article>
+</Base>
