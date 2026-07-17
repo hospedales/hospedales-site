@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro'
+import { personJsonLd } from '../lib/jsonld'
+import { siteConfig } from '../lib/site'
+
+const skills = [
+  'TypeScript',
+  'React',
+  'Astro',
+  'Next.js',
+  'Node.js',
+  'Tailwind CSS',
+  'AWS (Lambda, SES, Amplify, S3)',
+  'CI/CD & GitHub Actions',
+  'Local LLMs & AI pipelines',
+  'Testing (Vitest, Playwright, Jest)',
+]
+---
+
+<Base
+  title="About — Michael Hospedales"
+  description="Front-end engineer with full-stack range, based in Miami. Building web products and homelab AI infrastructure, in public."
+  ogImagePath="/og/page/about.png"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(personJsonLd())} is:inline />
+  <section class="mx-auto max-w-3xl px-6 py-16">
+    <h1 class="font-display text-ink-deep text-5xl font-semibold">About</h1>
+    <div class="prose prose-lg mt-8 max-w-none">
+      <p>
+        I'm Michael — a software engineer in Miami. My specialty is the front end: interfaces that
+        are fast, accessible, and pleasant to maintain. My range is the full stack: I'm as
+        comfortable wiring Lambda functions and CI pipelines as I am tuning render performance.
+      </p>
+      <p>
+        Outside work hours I run a homelab built around an NVIDIA DGX Spark. It's where I experiment
+        with local language models — including <a href="/projects/spark-writing-pipeline">
+          The Spark</a
+        >, an AI writing pipeline that drafts posts for this blog and opens pull requests for my
+        review. I believe the most useful way to learn AI engineering is to run the machines
+        yourself, and the most honest way to show it is to publish the process.
+      </p>
+      <p>
+        This site is built in public too: <a href="/projects/site-rebuild">the rebuild</a> is documented
+        as a project, and the source lives on
+        <a href={siteConfig.social.github}>GitHub</a>.
+      </p>
+    </div>
+
+    <h2 class="font-display text-ink-deep mt-12 text-2xl font-semibold">Toolbox</h2>
+    <ul class="mt-4 flex flex-wrap gap-2">
+      {
+        skills.map((skill) => (
+          <li class="border-paper-warm text-ink-soft rounded-full border px-3 py-1 text-sm">
+            {skill}
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2 class="font-display text-ink-deep mt-12 text-2xl font-semibold">What I'm open to</h2>
+    <div class="prose prose-lg mt-4 max-w-none">
+      <p>
+        I'm gainfully employed and not job hunting — but I keep the door open for the right
+        conversations: <strong>founding-engineer or early-team roles</strong> at startups that are building
+        something real, <strong>collaborations</strong> on open source or content, and interesting technical
+        problems generally. If that's you,
+        <a href="/contact">say hello</a>.
+      </p>
+    </div>
+  </section>
+</Base>
