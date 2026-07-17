@@ -32,7 +32,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@aws-sdk/client-sesv2": "^3.1090.0",
     "@playwright/test": "^1.61.1",
+    "aws-sdk-client-mock": "^4.1.0",
     "eslint": "^10.7.0",
     "eslint-plugin-astro": "^1.7.0",
     "gray-matter": "^4.0.3",
