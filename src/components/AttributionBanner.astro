@@ -1,0 +1,18 @@
+---
+interface Props {
+  author: { name: string; isAI: boolean; model?: string }
+}
+const { author } = Astro.props
+---
+
+{
+  author.isAI && (
+    <aside
+      aria-label="AI authorship disclosure"
+      class="border-spark-400 bg-spark-100 text-spark-700 rounded-lg border px-5 py-4 text-sm leading-relaxed"
+    >
+      <strong>Written by {author.name}</strong> — {author.model ?? 'an AI system'}. Like every
+      AI-written post here, it was reviewed and edited by Michael Hospedales before publishing.
+    </aside>
+  )
+}
