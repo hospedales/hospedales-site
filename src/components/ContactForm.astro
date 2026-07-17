@@ -1,0 +1,98 @@
+---
+interface Props {
+  endpoint: string
+}
+const { endpoint } = Astro.props
+---
+
+<form data-endpoint={endpoint} class="mt-8 flex max-w-xl flex-col gap-5" novalidate={false}>
+  <div class="hidden" aria-hidden="true">
+    <label
+      >Leave this field empty <input
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+      /></label
+    >
+  </div>
+  <label class="text-ink flex flex-col gap-1.5 text-sm font-medium">
+    Name
+    <input
+      type="text"
+      name="name"
+      required
+      maxlength="100"
+      class="border-paper-warm focus:border-koi-500 rounded-md border bg-white px-4 py-2.5 text-base focus:outline-none"
+    />
+  </label>
+  <label class="text-ink flex flex-col gap-1.5 text-sm font-medium">
+    Email
+    <input
+      type="email"
+      name="email"
+      required
+      maxlength="200"
+      class="border-paper-warm focus:border-koi-500 rounded-md border bg-white px-4 py-2.5 text-base focus:outline-none"
+    />
+  </label>
+  <label class="text-ink flex flex-col gap-1.5 text-sm font-medium">
+    Message
+    <textarea
+      name="message"
+      required
+      minlength="10"
+      maxlength="5000"
+      rows="6"
+      class="border-paper-warm focus:border-koi-500 rounded-md border bg-white px-4 py-2.5 text-base focus:outline-none"
+    ></textarea>
+  </label>
+  <button
+    type="submit"
+    class="bg-ink text-paper hover:bg-koi-600 self-start rounded-md px-6 py-3 font-medium transition-colors disabled:opacity-50"
+  >
+    Send message
+  </button>
+  <p data-status role="status" aria-live="polite" class="hidden text-sm font-medium"></p>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('form[data-endpoint]')!
+  const status = form.querySelector<HTMLParagraphElement>('[data-status]')!
+  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!
+
+  const show = (message: string, ok: boolean) => {
+    status.textContent = message
+    status.classList.remove('hidden', 'text-koi-600', 'text-spark-600')
+    status.classList.add(ok ? 'text-spark-600' : 'text-koi-600')
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const endpoint = form.dataset.endpoint
+    if (!endpoint) {
+      show('The form is not configured — please email me instead (link below).', false)
+      return
+    }
+    const data = Object.fromEntries(new FormData(form).entries())
+    button.disabled = true
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (res.ok && body.ok) {
+        form.reset()
+        show("Sent — thanks! I'll get back to you soon.", true)
+      } else {
+        show(body.error ?? 'Something went wrong — please email me instead (link below).', false)
+      }
+    } catch {
+      show('Network error — please email me instead (link below).', false)
+    } finally {
+      button.disabled = false
+    }
+  })
+</script>

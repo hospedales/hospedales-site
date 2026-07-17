@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro'
+import ContactForm from '../components/ContactForm.astro'
+import { siteConfig } from '../lib/site'
+
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? ''
+---
+
+<Base
+  title="Contact — Michael Hospedales"
+  description="Get in touch about founding-engineer roles, collaborations, or interesting problems."
+  ogImagePath="/og/page/contact.png"
+>
+  <section class="mx-auto max-w-3xl px-6 py-16">
+    <h1 class="font-display text-ink-deep text-5xl font-semibold">Say hello</h1>
+    <p class="text-ink-soft mt-4 max-w-xl text-lg">
+      Founding-engineer conversations, collaborations, questions about the homelab — all welcome.
+    </p>
+    <ContactForm {endpoint} />
+    <p class="text-ink-soft mt-10 text-sm">
+      Prefer email? <a
+        class="text-koi-600 font-medium hover:underline"
+        href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a
+      >
+      · or find me on
+      <a class="text-koi-600 font-medium hover:underline" href={siteConfig.social.linkedin}
+        >LinkedIn</a
+      >.
+    </p>
+  </section>
+</Base>
