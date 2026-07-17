@@ -51,4 +51,13 @@ describe('authorSchema', () => {
     })
     expect(parsed.isAI).toBe(true)
   })
+  it('applies isAI default and leaves model optional', () => {
+    const parsed = authorSchema.parse({ name: 'X', role: 'Writer', bio: 'A bio.' })
+    expect(parsed.isAI).toBe(false)
+    expect(parsed.model).toBeUndefined()
+  })
+  it('rejects missing or empty required fields', () => {
+    expect(() => authorSchema.parse({ name: 'X', role: 'Writer' })).toThrow()
+    expect(() => authorSchema.parse({ name: '', role: 'Writer', bio: 'A bio.' })).toThrow()
+  })
 })
