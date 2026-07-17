@@ -1,0 +1,31 @@
+---
+title: 'Homelab AI infrastructure'
+summary: 'An NVIDIA DGX Spark on my desk: local models, self-hosted services, and infrastructure as a learning practice.'
+status: 'active'
+stack: ['NVIDIA DGX Spark', 'local LLMs', 'Linux', 'self-hosting']
+featured: true
+order: 2
+---
+
+The most valuable AI education I've found doesn't come from API calls — it comes from running
+the machines yourself.
+
+My homelab is built around an NVIDIA DGX Spark: desk-sized, GPU-accelerated, and mine. It runs
+the local language models behind [The Spark writing pipeline](/projects/spark-writing-pipeline)
+and whatever else I'm currently curious about.
+
+## Why local
+
+- **You learn the whole stack.** Serving a model yourself teaches you about memory, quantization,
+  throughput, and failure modes that an API abstracts away.
+- **Privacy is structural, not contractual.** Drafts, experiments, and personal data never leave
+  the room.
+- **Cost is a one-time decision.** Experimentation stops being metered, which changes what you're
+  willing to try.
+
+## What runs here
+
+The centerpiece is the writing pipeline. Around it: model experiments, self-hosted services as
+they earn their keep, and — coming soon — this site's analytics, self-hosted on the same box.
+
+_This project is active — I write up pieces of it on [the blog](/blog) as they mature._

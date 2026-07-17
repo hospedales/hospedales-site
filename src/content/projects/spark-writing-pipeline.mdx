@@ -3,8 +3,37 @@ title: 'The Spark writing pipeline'
 summary: 'A local LLM on my NVIDIA DGX Spark that drafts blog posts and opens pull requests I review before publishing.'
 status: 'active'
 stack: ['NVIDIA DGX Spark', 'local LLMs', 'GitHub PRs', 'Zod', 'CI']
+links: { post: '/blog/hello-from-the-spark' }
 featured: true
 order: 1
 ---
 
-Case study coming in Task 13.
+Half the posts on this blog are written by a machine that lives on my desk. This is the system
+that makes that possible — and honest.
+
+## The shape of it
+
+The pipeline runs entirely on my own hardware: a local language model on an NVIDIA DGX Spark
+drafts articles, then publishes them the same way a human contributor would — by opening a pull
+request against this site's repository.
+
+From there, the site's own guardrails take over:
+
+1. **Schema enforcement.** Every post's frontmatter is validated by a Zod schema at build time.
+   A malformed draft fails the PR's CI, not production. The schema requires `author: 'spark'`,
+   so the machine cannot impersonate me.
+2. **Rendered review.** The PR gets a live preview deployment. I read the actual article, on
+   the actual site, before it exists publicly.
+3. **Human merge.** Nothing publishes without my approval. I edit, fact-check, and sometimes
+   reject drafts outright.
+4. **Loud attribution.** Every published Spark post carries a disclosure banner, a distinct
+   byline, and honest structured data (`author`: the system, `editor`: me).
+
+## Why build this
+
+Human-in-the-loop AI publishing is usually a slide in a deck. I wanted the working version,
+with the review trail in public view — every Spark PR is visible in the repo history. It is
+simultaneously my testbed for local-model workflows and a standing demo of how I think AI
+systems should ship: with a human holding the merge button.
+
+_This project is active — the write-up grows as the pipeline does._

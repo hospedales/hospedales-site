@@ -1,0 +1,31 @@
+---
+title: 'This site: the rebuild'
+summary: 'From a Next.js freelance brochure to a static Astro builder-brand site — new repo, new stack, new positioning.'
+status: 'shipped'
+stack: ['Astro', 'Tailwind CSS v4', 'TypeScript', 'AWS Amplify', 'Lambda + SES']
+links: { repo: 'https://github.com/hospedales/hospedales-site', post: '/blog/a-new-coat-of-paint' }
+featured: true
+order: 3
+---
+
+The previous version of this site was a Next.js app positioned to sell freelance services. I'm
+not selling freelance services. Rebuilding from an empty repo was cheaper than renovating.
+
+## Decisions that mattered
+
+- **Astro over Next.js.** This is a content site. Astro renders it to plain HTML with almost no
+  JavaScript, which makes performance a property of the architecture instead of an
+  optimization project.
+- **Content as code.** Posts and projects are MDX files validated by Zod schemas at build time.
+  That validation is also the publishing contract for
+  [The Spark](/projects/spark-writing-pipeline) — the AI can only ship posts that pass review
+  and schema.
+- **One dynamic seam.** The only server-side code is a single Lambda function that emails
+  contact-form submissions via SES. Everything else is static files on a CDN.
+- **The koi, sharpened.** The koi identity survived the rebuild but moved from wallpaper to
+  mark: paper canvas, ink type, pink as a signature accent.
+
+## The numbers
+
+Static HTML, zero client-side framework code, fonts self-hosted, images optimized at build
+time. Lighthouse considers this boring. Boring was the goal.
