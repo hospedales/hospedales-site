@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time deploy of the contact Lambda + SES identity. Requires configured AWS CLI.
+# Deploy (idempotent) of the contact Lambda + SES identity. Requires configured AWS CLI.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -39,13 +39,20 @@ else
     --role "arn:aws:iam::${ACCOUNT_ID}:role/${ROLE_NAME}" \
     --zip-file fileb:///tmp/contact.zip \
     --environment "Variables={CONTACT_TO=${EMAIL},CONTACT_FROM=${EMAIL}}" >/dev/null
-  aws lambda create-function-url-config --function-name "$FN_NAME" --region "$REGION" \
-    --auth-type NONE --cors \
-    'AllowOrigins=https://www.hospedales.com,http://localhost:4321,AllowMethods=POST,AllowHeaders=content-type' >/dev/null
-  aws lambda add-permission --function-name "$FN_NAME" --region "$REGION" \
-    --statement-id FunctionURLAllowPublicAccess --action lambda:InvokeFunctionUrl \
-    --principal '*' --function-url-auth-type NONE >/dev/null
 fi
+
+# NOTE: since Oct 2025, function URLs need BOTH InvokeFunctionUrl and InvokeFunction grants.
+echo "==> Function URL + public permissions (idempotent)"
+aws lambda create-function-url-config --function-name "$FN_NAME" --region "$REGION" \
+  --auth-type NONE --cors \
+  'AllowOrigins=https://www.hospedales.com,http://localhost:4321,AllowMethods=POST,AllowHeaders=content-type' \
+  2>/dev/null || echo "    function url already exists"
+aws lambda add-permission --function-name "$FN_NAME" --region "$REGION" \
+  --statement-id FunctionURLAllowPublicAccess --action lambda:InvokeFunctionUrl \
+  --principal '*' --function-url-auth-type NONE 2>/dev/null || echo "    url permission already exists"
+aws lambda add-permission --function-name "$FN_NAME" --region "$REGION" \
+  --statement-id FunctionURLInvokeFunction --action lambda:InvokeFunction \
+  --principal '*' 2>/dev/null || echo "    invoke permission already exists"
 
 echo "==> Function URL:"
 aws lambda get-function-url-config --function-name "$FN_NAME" --region "$REGION" \
